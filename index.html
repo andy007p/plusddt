@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>计算器</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <style>
+        :root { --bg: #000; --num-bg: #333; --op-bg: #ff9f0a; --spec-bg: #a5a5a5; --text: #fff; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* 结果显示区 */
+        .display-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; padding: 20px; }
+        #res { width: 100%; border: none; background: none; color: #fff; font-size: 70px; text-align: right; outline: none; font-weight: 300; pointer-events: none; }
+        
+        /* 历史记录区 - 浅灰色文字 */
+        .history-log { width: 100%; max-height: 80px; overflow-y: auto; font-size: 18px; color: #888; text-align: right; margin-bottom: 10px; }
+
+        /* 按键区 */
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+        button { border: none; aspect-ratio: 1/1; border-radius: 50%; font-size: 32px; font-weight: 400; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: brightness 0.2s; }
+        button:active { filter: brightness(1.5); }
+        
+        .btn-num { background: var(--num-bg); color: white; }
+        .btn-op { background: var(--op-bg); color: white; font-size: 38px; }
+        .btn-spec { background: var(--spec-bg); color: black; font-size: 24px; }
+        .btn-zero { grid-column: span 2; aspect-ratio: auto; border-radius: 50px; justify-content: flex-start; padding-left: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="display-area">
+    <div id="history" class="history-log"></div>
+    <input type="text" id="res" readonly placeholder="0">
+</div>
+
+<div class="keypad">
+    <button class="btn-spec" onclick="clr()">AC</button>
+    <button class="btn-spec" onclick="del()">←</button>
+    <button class="btn-spec" onclick="ins('%')">%</button>
+    <button class="btn-op" onclick="ins('/')">÷</button>
+    
+    <button class="btn-num" onclick="ins('7')">7</button>
+    <button class="btn-num" onclick="ins('8')">8</button>
+    <button class="btn-num" onclick="ins('9')">9</button>
+    <button class="btn-op" onclick="ins('*')">×</button>
+    
+    <button class="btn-num" onclick="ins('4')">4</button>
+    <button class="btn-num" onclick="ins('5')">5</button>
+    <button class="btn-num" onclick="ins('6')">6</button>
+    <button class="btn-op" onclick="ins('-')">−</button>
+    
+    <button class="btn-num" onclick="ins('1')">1</button>
+    <button class="btn-num" onclick="ins('2')">2</button>
+    <button class="btn-num" onclick="ins('3')">3</button>
+    <button class="btn-op" onclick="ins('+')">+</button>
+    
+    <button class="btn-num btn-zero" onclick="ins('0')">0</button>
+    <button class="btn-num" onclick="ins('.')">.</button>
+    <button class="btn-op" onclick="calc()">=</button>
+</div>
+
+<script>
+    const r = document.getElementById('res');
+    const h = document.getElementById('history');
+
+    function ins(v) {
+        if (r.value === '0') r.value = v;
+        else r.value += v;
+    }
+
+    function clr() { r.value = ''; h.innerHTML = ''; }
+    
+    function del() { r.value = r.value.slice(0, -1); }
+
+    function calc() {
+        if (!r.value) return;
+        try {
+            let exp = r.value;
+            // 替换显示符号为计算符号
+            let result = eval(exp.replace('×','*').replace('÷','/').replace('−','-'));
+            result = parseFloat(result.toFixed(10));
+            
+            // 更新历史记录
+            h.innerHTML = exp + " = " + result;
+            r.value = result;
+        } catch {
+            r.value = 'Error';
+            setTimeout(() => r.value = '', 1000);
+        }
+    }
+</script>
+
+</body>
+</html>
